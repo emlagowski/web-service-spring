@@ -28,6 +28,8 @@ html {
 
 body {
   margin: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
@@ -386,6 +388,7 @@ code {
 }
 
 .page-shell {
+  width: 100%;
   max-width: 1380px;
   display: grid;
   grid-template-columns: 250px minmax(0, 980px);
@@ -427,11 +430,13 @@ code {
 }
 
 .article {
+  min-width: 0;
   display: grid;
   gap: clamp(3rem, 6vw, 5.5rem);
 }
 
 .article-section {
+  min-width: 0;
   scroll-margin-top: calc(var(--header-height) + 1.5rem);
 }
 
@@ -465,11 +470,14 @@ code {
 }
 
 .call-lanes {
+  min-width: 0;
+  max-width: 100%;
   display: grid;
   gap: 0.85rem;
 }
 
 .lane {
+  min-width: 0;
   display: grid;
   grid-template-columns: minmax(145px, 1fr) minmax(180px, 1.15fr) minmax(145px, 1fr);
   gap: 1rem;
@@ -480,6 +488,7 @@ code {
 }
 
 .lane-party {
+  min-width: 0;
   min-height: 80px;
   display: grid;
   place-items: center;
@@ -494,6 +503,7 @@ code {
 }
 
 .lane-protocol {
+  min-width: 0;
   min-height: 64px;
   display: grid;
   place-items: center;
@@ -536,6 +546,7 @@ code {
   border: 1px solid var(--line);
   background: var(--paper-soft);
   padding: 0.45rem 0.55rem;
+  overflow-wrap: anywhere;
 }
 
 .lane.strong .lane-protocol,
@@ -559,6 +570,8 @@ code {
 }
 
 .code-card {
+  min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   border: 1px solid var(--ink);
   background: var(--code-bg);
@@ -593,6 +606,7 @@ code {
 }
 
 pre {
+  max-width: 100%;
   max-height: min(680px, 72vh);
   overflow: auto;
   margin: 0;
@@ -660,6 +674,8 @@ pre code {
 }
 
 .trust-grid {
+  min-width: 0;
+  max-width: 100%;
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(190px, 0.7fr) minmax(220px, 1fr);
   gap: 1rem;
@@ -730,6 +746,8 @@ pre code {
 }
 
 .sequence {
+  min-width: 0;
+  max-width: 100%;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
@@ -762,6 +780,8 @@ pre code {
 }
 
 .log-grid {
+  min-width: 0;
+  max-width: 100%;
   display: grid;
   gap: 1.4rem;
 }
@@ -953,6 +973,43 @@ pre code {
 
   .page-shell {
     padding: 2.5rem 1rem;
+  }
+
+  .toc {
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+    overflow: visible;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 1rem;
+  }
+
+  .toc p,
+  .toc a {
+    min-width: 0;
+    flex: initial;
+  }
+
+  .toc p {
+    margin: 0 0 0.45rem;
+    padding: 0;
+  }
+
+  .toc a {
+    width: 100%;
+    border-left: 2px solid transparent;
+    border-bottom: 0;
+    padding: 0.42rem 0 0.42rem 0.75rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .toc a.active,
+  .toc a:hover {
+    border-left-color: var(--accent);
+    border-bottom-color: transparent;
   }
 
   .code-title {
