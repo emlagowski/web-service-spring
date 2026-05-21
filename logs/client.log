@@ -1,0 +1,180 @@
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.6)
+
+2026-05-21T23:24:57.915+02:00  INFO 73324 --- [client-service] [           main] c.e.d.client.ClientServiceApplication    : Starting ClientServiceApplication using Java 24.0.2 with PID 73324 (/Users/marcinlagowski/Projects/web-service-spring/client-service/target/classes started by marcinlagowski in /Users/marcinlagowski/Projects/web-service-spring/client-service)
+2026-05-21T23:24:57.916+02:00  INFO 73324 --- [client-service] [           main] c.e.d.client.ClientServiceApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-05-21T23:24:58.197+02:00  INFO 73324 --- [client-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-05-21T23:24:58.202+02:00  INFO 73324 --- [client-service] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-05-21T23:24:58.202+02:00  INFO 73324 --- [client-service] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-05-21T23:24:58.223+02:00  INFO 73324 --- [client-service] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 293 ms
+2026-05-21T23:24:58.415+02:00  INFO 73324 --- [client-service] [           main] o.s.ws.soap.saaj.SaajSoapMessageFactory  : Creating SAAJ 1.3 MessageFactory with SOAP 1.1 Protocol
+2026-05-21T23:24:58.431+02:00  INFO 73324 --- [client-service] [           main] .w.s.a.s.AnnotationActionEndpointMapping : Supporting [WS-Addressing August 2004, WS-Addressing 1.0]
+2026-05-21T23:24:58.524+02:00  INFO 73324 --- [client-service] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-05-21T23:24:58.527+02:00  INFO 73324 --- [client-service] [           main] c.e.d.client.ClientServiceApplication    : Started ClientServiceApplication in 0.746 seconds (process running for 0.868)
+2026-05-21T23:25:12.256+02:00  INFO 73324 --- [client-service] [nio-8081-exec-2] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-05-21T23:25:12.256+02:00  INFO 73324 --- [client-service] [nio-8081-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-05-21T23:25:12.257+02:00  INFO 73324 --- [client-service] [nio-8081-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-05-21T23:25:12.264+02:00 TRACE 73324 --- [client-service] [nio-8081-exec-2] org.zalando.logbook.Logbook              : Incoming Request: e498fb0afefee2c3
+Remote: 0:0:0:0:0:0:0:1
+GET http://localhost:8081/api/content?category=spring HTTP/1.1
+Accept: */*
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Host: localhost:8081
+Postman-Token: 5e759330-a771-4847-ab39-4d3693d57e59
+User-Agent: PostmanRuntime/7.54.0
+2026-05-21T23:25:12.352+02:00 TRACE 73324 --- [client-service] [nio-8081-exec-2] org.zalando.logbook.Logbook              : Outgoing Request: cf5d22be0b91baf5
+Remote: localhost
+POST http://localhost:8080/ws HTTP/1.1
+Accept: text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
+Accept-Encoding: gzip
+Content-Length: 4328
+Content-Type: text/xml; charset=utf-8
+SOAPAction: ""
+
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header>
+    <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" SOAP-ENV:mustUnderstand="1">
+      <wsse:BinarySecurityToken EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" wsu:Id="X509-7f2af0b2-0ce9-4558-b4af-5e957e2127a8">MIIDkjCCAnqgAwIBAgIJANIvpCNaN93XMA0GCSqGSIb3DQEBDAUAMHcxCzAJBgNVBAYTAlBMMRQwEgYDVQQIEwtNYXpvd2llY2tpZTEPMA0GA1UEBxMGV2Fyc2F3MRAwDgYDVQQKEwdFeGFtcGxlMRkwFwYDVQQLExBTcHJpbmcgU09BUCBEZW1vMRQwEgYDVQQDEwtEZW1vIENsaWVudDAeFw0yNjA1MjEyMTIzMTNaFw0zNjA1MTgyMTIzMTNaMHcxCzAJBgNVBAYTAlBMMRQwEgYDVQQIEwtNYXpvd2llY2tpZTEPMA0GA1UEBxMGV2Fyc2F3MRAwDgYDVQQKEwdFeGFtcGxlMRkwFwYDVQQLExBTcHJpbmcgU09BUCBEZW1vMRQwEgYDVQQDEwtEZW1vIENsaWVudDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANArClNdRmI1FAAJ1qykwuymuPqm8iH9WB6ourdVajv8YggKuwvSOAaypbeVfgpWQbN3+pl6tNmSzepQ7DhDhZhR4QVfEv81jLh6kk0oVYEJJc/ryVsNvjUaYVcsx4rmfjCPacpW0QlnYSeopdAls+aYVpjhkIoLvuRPGpnqmgCkIRQdz6L1lx7F95p61h+DEsA1dBiPrL+ZrDUy5FwDq2KVuaKBUMk/OBYl/sM2Ayg2OTxzp+A0bXLcPN1WzCwBB4qwGUHmI76GkdIyYxQpHzJZ7AEhqs8q3lfs7Xw9dtHXSMmfES5t8y2hRtIRcAPaYbC8aiRfFct2EgLySba2m2kCAwEAAaMhMB8wHQYDVR0OBBYEFCI6/FcAzqlsmRpw9SlzmzEMyfG3MA0GCSqGSIb3DQEBDAUAA4IBAQAx/Hy820Ggdy0nZwqzgtlaKQr7EwjV+rArgksVz+7pRHPfwUGBo4tkMMl09jT8245dPwE1y8XZ2EANTUGbtZrIBia1wt96C/bGKz9b7/y8/r6Onifw+JtcZJWHqNJVQuen9kKISRU3I3SasRw4y7NftXsXnrMPuKCso032JZIbU1NU0YkvsAjyt04B3HeoVKLXS7CEjsy4KZHXiZAdw5UDQtYMHBPS0/Q/8/l4S7AOLlAe+kga3Bna7XnJJu5WMmCWvEbXzm0E/YaCSoBasv6InyW0/pLcdw/+8RGTbN/wOeMVhadiN/WokT5I8evN9EGdP9XKae9pa5spnuPpyhXj</wsse:BinarySecurityToken>
+      <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="SIG-adb45993-3932-41f4-a237-90f478c501d0">
+        <ds:SignedInfo>
+          <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+            <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="SOAP-ENV"/>
+          </ds:CanonicalizationMethod>
+          <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+          <ds:Reference URI="#id-3f852658-70c4-4983-815d-45a51be6d21f">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>J96GDYJef9tHVD/dTCx2r0ZJtHs=</ds:DigestValue>
+          </ds:Reference>
+          <ds:Reference URI="#TS-7cb79824-284e-4975-8d85-221f66c83e2f">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="wsse SOAP-ENV"/>
+              </ds:Transform>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>Ww3RfjeJsBgrZIypo1zhYqHv6PU=</ds:DigestValue>
+          </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>iyZZZgl4mLKAp/SL6tBBvM+UYvHkab/wcBvXFySuDrQa0EU/qs7Fhi8XdPcuAyUdZ426MzJGShyWg2wRG07ptE0PW9nqZIcWqr2kc6lWsyKk2RcMymKaBW+FTa/KowkGD10gteFTi0koqs7X+cD6WQQ442cINkJhoGvqk4daMEaMiYlzaTXnw7zeEydnIw4pDSyOqJW7TQmyBMabOlKJOLcjhyyduyGQMjVTWqPauvk4YtfuaxKd0uzKIinPfqu5cEe9HAhE5A2vHqFQld0lSHKmdn2VWQTUNlrEBbLNcrQrOtUnUaRfzt0uz2qvJVCRWznjwh48SSZyDTfRX2Clag==</ds:SignatureValue>
+        <ds:KeyInfo Id="KI-15ad891e-0dd0-4947-aafa-6f8d69917504">
+          <wsse:SecurityTokenReference wsu:Id="STR-acd4cbb9-a275-43ce-93e8-fc5fbe749d45">
+            <wsse:Reference URI="#X509-7f2af0b2-0ce9-4558-b4af-5e957e2127a8" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/>
+          </wsse:SecurityTokenReference>
+        </ds:KeyInfo>
+      </ds:Signature>
+      <wsu:Timestamp wsu:Id="TS-7cb79824-284e-4975-8d85-221f66c83e2f">
+        <wsu:Created>2026-05-21T21:25:12.318Z</wsu:Created>
+        <wsu:Expires>2026-05-21T21:30:12.318Z</wsu:Expires>
+      </wsu:Timestamp>
+    </wsse:Security>
+  </SOAP-ENV:Header>
+  <SOAP-ENV:Body xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="id-3f852658-70c4-4983-815d-45a51be6d21f">
+    <ns2:SearchContentRequest xmlns:ns2="urn:demo:provider:content:v1" xmlns:ns3="urn:demo:client:callback:v1">
+      <ns2:category>spring</ns2:category>
+    </ns2:SearchContentRequest>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+2026-05-21T23:25:12.485+02:00 TRACE 73324 --- [client-service] [nio-8081-exec-2] org.zalando.logbook.Logbook              : Incoming Response: cf5d22be0b91baf5
+Duration: 131 ms
+HTTP/1.1 200 OK
+Accept: text/xml, text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2
+Connection: keep-alive
+Content-Length: 5491
+Content-Type: text/xml;charset=utf-8
+Date: Thu, 21 May 2026 21:25:12 GMT
+Keep-Alive: timeout=60
+SOAPAction: ""
+
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+  <SOAP-ENV:Header>
+    <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" SOAP-ENV:mustUnderstand="1">
+      <wsse:BinarySecurityToken EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3" wsu:Id="X509-ab92e2d3-9030-405a-aad3-b348a3cd8e83">MIIDljCCAn6gAwIBAgIJAOhYWAGw5JSXMA0GCSqGSIb3DQEBDAUAMHkxCzAJBgNVBAYTAlBMMRQwEgYDVQQIEwtNYXpvd2llY2tpZTEPMA0GA1UEBxMGV2Fyc2F3MRAwDgYDVQQKEwdFeGFtcGxlMRkwFwYDVQQLExBTcHJpbmcgU09BUCBEZW1vMRYwFAYDVQQDEw1EZW1vIFByb3ZpZGVyMB4XDTI2MDUyMTIxMjMxM1oXDTM2MDUxODIxMjMxM1oweTELMAkGA1UEBhMCUEwxFDASBgNVBAgTC01hem93aWVja2llMQ8wDQYDVQQHEwZXYXJzYXcxEDAOBgNVBAoTB0V4YW1wbGUxGTAXBgNVBAsTEFNwcmluZyBTT0FQIERlbW8xFjAUBgNVBAMTDURlbW8gUHJvdmlkZXIwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCw4c/CoUCHjB6MJE0pGslTaWR2tDz+DoJ+AaUUJwZKrrw6xwbDvbV7QECsrfhkwweJvd24fmIx7tlewXzU2NVkfBs3ITETInk216I4j6ZHhnseIR5VRcoo29AtMcl0ZMSYvY1tp2ySYjEOVQU2PcVFyucn8JYANjRxxilJ1a/Sm9phBsSs0cyvxLFBVVr1Fjry7XJIyeaYKgIserfSAT7Q5hx+CxqhCrKMD+9MfzIMt1ocWbECBgzqwd6FpxOoRio8708oFTwwN27AlalmB1YQr/h7Udi/OAbuKFAECy9R7wBnnunIwOFqu3NXlDRg76pdO78T1r1EqKL0EhInKgANAgMBAAGjITAfMB0GA1UdDgQWBBTI7S2LTV+ycLTWEQl2lPTd7lXfGDANBgkqhkiG9w0BAQwFAAOCAQEAH6CdirwrWG8N8La1GGIEPoKrJL0Q8ohcrvXc48NOG8BhnGUn6RTWHqBkftjxKEMoXQAwcJV4Qy7ACL9x84DpchoqrBu6Oi3QDBj4jEO3DXcGYeMk78WXxkA0vhwXg2ywnZGsrvCJqH2xE8restRT9tgEXWyhgiA4t0k+FCmrt6hH2oUoQ8T7MVkeYj+hTEjjXAMJN1FY70uNyDIlXFYrN9QYbJnBaE53amr8AXn2FZJptkfSPAJ4jgJBK3vJyB8J7EzBU+PaXE39TO400se69PmcD9Eue5vWd/kSt/+JmHjvK07p6hqeWbph2vkkH9munO39ve69v+P47TO4fK6LVA==</wsse:BinarySecurityToken>
+      <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" Id="SIG-9bc2e2c4-64de-4160-b668-3583b931e738">
+        <ds:SignedInfo>
+          <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+            <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="SOAP-ENV"/>
+          </ds:CanonicalizationMethod>
+          <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+          <ds:Reference URI="#id-dcf0b885-62fc-451c-a0b3-0f9f5a912efd">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>74gj1qqMKRKYUn4DALnJc31dg3E=</ds:DigestValue>
+          </ds:Reference>
+          <ds:Reference URI="#TS-834ae804-9888-43e0-ac23-c69c72c02938">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="wsse SOAP-ENV"/>
+              </ds:Transform>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>BRjhTCmKR812ypre35sJ/xaRQR4=</ds:DigestValue>
+          </ds:Reference>
+          <ds:Reference URI="#SC-573ecd4a-95d1-4eb3-b409-d324bf7ff6bb">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#">
+                <ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="wsse SOAP-ENV"/>
+              </ds:Transform>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+            <ds:DigestValue>O1dciAAbyvPGHky00VvHLIKMR/8=</ds:DigestValue>
+          </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>NUJyqyxs2LciIbc+6kZflpPSYtRtzGh+pbKywkPznVzM7kqtUCzCoROtG2Mx0fiHeDcrIq9f2Ql+4J+0wKThoSF18yslkAa40CJKxPMKGm+1Cl9YefGfoGnJ86u94hwSWZLq65qK8qJrUpag4ffzpaRXWOMiyDjRE1/OfsxGwhIIMRiRe0Ny9oQtMV0lSNxcb2umPoj83ftXYx6gi+w5M7s5PxzyAIugplXn9QPuVaCPIHXX+PZco/T/AwWVJOKmx0NHLaHdR7eaNWtBT4nfPKPPBw9CmWk6G32MU4HQpKRcZhQyzJCffOC9k9LTnIpagjRwW9YeJxXB37uFm59M4A==</ds:SignatureValue>
+        <ds:KeyInfo Id="KI-2d706e19-bb85-45a5-a0ad-8393f733fcbe">
+          <wsse:SecurityTokenReference wsu:Id="STR-6c2aff05-5639-411c-9a69-efdd22927d7b">
+            <wsse:Reference URI="#X509-ab92e2d3-9030-405a-aad3-b348a3cd8e83" ValueType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"/>
+          </wsse:SecurityTokenReference>
+        </ds:KeyInfo>
+      </ds:Signature>
+      <wsu:Timestamp wsu:Id="TS-834ae804-9888-43e0-ac23-c69c72c02938">
+        <wsu:Created>2026-05-21T21:25:12.453Z</wsu:Created>
+        <wsu:Expires>2026-05-21T21:30:12.453Z</wsu:Expires>
+      </wsu:Timestamp>
+      <wsse11:SignatureConfirmation xmlns:wsse11="http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd" Value="iyZZZgl4mLKAp/SL6tBBvM+UYvHkab/wcBvXFySuDrQa0EU/qs7Fhi8XdPcuAyUdZ426MzJGShyWg2wRG07ptE0PW9nqZIcWqr2kc6lWsyKk2RcMymKaBW+FTa/KowkGD10gteFTi0koqs7X+cD6WQQ442cINkJhoGvqk4daMEaMiYlzaTXnw7zeEydnIw4pDSyOqJW7TQmyBMabOlKJOLcjhyyduyGQMjVTWqPauvk4YtfuaxKd0uzKIinPfqu5cEe9HAhE5A2vHqFQld0lSHKmdn2VWQTUNlrEBbLNcrQrOtUnUaRfzt0uz2qvJVCRWznjwh48SSZyDTfRX2Clag==" wsu:Id="SC-573ecd4a-95d1-4eb3-b409-d324bf7ff6bb"/>
+    </wsse:Security>
+  </SOAP-ENV:Header>
+  <SOAP-ENV:Body xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="id-dcf0b885-62fc-451c-a0b3-0f9f5a912efd">
+    <ns2:SearchContentResponse xmlns:ns2="urn:demo:provider:content:v1">
+      <ns2:content>
+        <ns2:contentId>article-1</ns2:contentId>
+        <ns2:title>Spring Native SOAP</ns2:title>
+        <ns2:category>spring</ns2:category>
+      </ns2:content>
+      <ns2:content>
+        <ns2:contentId>article-2</ns2:contentId>
+        <ns2:title>Signed Provider Callback</ns2:title>
+        <ns2:category>spring</ns2:category>
+      </ns2:content>
+    </ns2:SearchContentResponse>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
+2026-05-21T23:25:12.527+02:00 TRACE 73324 --- [client-service] [nio-8081-exec-2] org.zalando.logbook.Logbook              : Outgoing Response: e498fb0afefee2c3
+Duration: 260 ms
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Type: application/json
+Date: Thu, 21 May 2026 21:25:12 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+
+[ {
+  "contentId" : "article-1",
+  "title" : "Spring Native SOAP",
+  "category" : "spring"
+}, {
+  "contentId" : "article-2",
+  "title" : "Signed Provider Callback",
+  "category" : "spring"
+} ]

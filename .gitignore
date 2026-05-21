@@ -1,0 +1,7 @@
+.mvn/apache-maven-*
+.mvn/*.tar.gz
+target/
+.idea/
+*.p12
+.DS_Store
+/.mvn/

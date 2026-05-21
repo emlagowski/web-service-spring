@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:demo:client:callback:v1"
+           elementFormDefault="qualified">
+
+    <xs:element name="NotifyContentDeliveredRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="eventId" type="xs:string"/>
+                <xs:element name="contentId" type="xs:string"/>
+                <xs:element name="title" type="xs:string"/>
+                <xs:element name="deliveredAt" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="NotifyContentDeliveredResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="accepted" type="xs:boolean"/>
+                <xs:element name="receivedAt" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

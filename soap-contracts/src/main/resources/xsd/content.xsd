@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="urn:demo:provider:content:v1"
+           targetNamespace="urn:demo:provider:content:v1"
+           elementFormDefault="qualified">
+
+    <xs:element name="GetContentRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="contentId" type="xs:string"/>
+                <xs:element name="callbackUrl" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="GetContentResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="contentId" type="xs:string"/>
+                <xs:element name="title" type="xs:string"/>
+                <xs:element name="body" type="xs:string"/>
+                <xs:element name="category" type="xs:string"/>
+                <xs:element name="servedAt" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="SearchContentRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="category" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="SearchContentResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="content" type="tns:ContentSummary" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="ContentSummary">
+        <xs:sequence>
+            <xs:element name="contentId" type="xs:string"/>
+            <xs:element name="title" type="xs:string"/>
+            <xs:element name="category" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
