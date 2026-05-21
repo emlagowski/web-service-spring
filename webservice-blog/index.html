@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SOAP XML Signature with Spring Boot 4 | webservice.mlagowski.com</title>
+    <meta
+      name="description"
+      content="A practical Spring Boot 4 walkthrough for signed SOAP service-to-service communication with Spring Web Services, WSS4J XML Signature, callbacks, REST facade, and Logbook traffic logs.">
+    <meta name="author" content="Marcin Lagowski">
+    <link rel="canonical" href="https://webservice.mlagowski.com/">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="SOAP XML Signature with Spring Boot 4">
+    <meta
+      property="og:description"
+      content="How two Spring Boot services exchange signed SOAP messages with XML Signature and WS-Security.">
+    <meta property="og:url" content="https://webservice.mlagowski.com/">
+    <meta property="og:site_name" content="webservice.mlagowski.com">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#f4f0e8">
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://umami.mlagowski.com/script.js" data-website-id="9c130e5c-26eb-4211-afb4-377801684146"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#article">Skip to article</a>
+
+    <header class="site-header" aria-label="Site header">
+      <a class="brand" href="https://webservice.mlagowski.com/" aria-label="webservice.mlagowski.com">
+        webservice.mlagowski.com
+      </a>
+      <nav class="top-nav" aria-label="External links">
+        <a href="https://github.com/emlagowski/web-service-spring">Repository</a>
+        <a href="https://www.mlagowski.com">Author</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Spring Boot 4 / Spring Web Services / XML Signature</p>
+          <h1 id="hero-title">Signed SOAP between Spring services</h1>
+          <p class="hero-lead">
+            A complete service-to-service demo: a public REST facade, a generated SOAP
+            contract, XML Signature in the WS-Security header, signed responses, and a
+            signed callback from the provider back to the client.
+          </p>
+          <div class="hero-actions" aria-label="Primary links">
+            <a class="button primary" href="https://github.com/emlagowski/web-service-spring">Open GitHub repository</a>
+            <a class="button secondary" href="#run-demo">Run the demo</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Main request flow diagram">
+          <div class="visual-header">
+            <span>Demo runtime flow</span>
+            <strong>REST facade to signed SOAP</strong>
+          </div>
+
+          <div class="flow-diagram">
+            <div class="flow-card">
+              <span class="stage-label">Caller</span>
+              <strong>User or Postman</strong>
+              <small>GET /api/content/article-1</small>
+            </div>
+            <div class="flow-link rest">
+              <span>REST</span>
+            </div>
+            <div class="flow-card emphasized">
+              <span class="stage-label">client-service</span>
+              <strong>REST facade</strong>
+              <small>WebServiceTemplate signs SOAP</small>
+            </div>
+            <div class="flow-link soap">
+              <span>SOAP + XML Signature</span>
+            </div>
+            <div class="flow-card emphasized">
+              <span class="stage-label">provider-service</span>
+              <strong>Content SOAP endpoint</strong>
+              <small>WSS4J validates request</small>
+            </div>
+          </div>
+
+          <div class="callback-flow">
+            <div class="callback-node">
+              <span class="stage-label">Provider action</span>
+              <strong>delivery notification</strong>
+              <small>same WSS4J configuration</small>
+            </div>
+            <div class="callback-link">
+              <span>provider signs callback SOAP</span>
+            </div>
+            <div class="callback-node">
+              <span class="stage-label">Callback URL</span>
+              <strong>client-service /ws</strong>
+              <small>NotifyContentDelivered endpoint</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="intro-strip" aria-label="Implementation summary">
+        <div>
+          <span>Contract</span>
+          <strong>XSD + generated WSDL</strong>
+        </div>
+        <div>
+          <span>Signature</span>
+          <strong>SOAP Body + Timestamp</strong>
+        </div>
+        <div>
+          <span>Keys</span>
+          <strong>local PKCS12 stores</strong>
+        </div>
+        <div>
+          <span>Logs</span>
+          <strong>REST and SOAP through Logbook</strong>
+        </div>
+      </section>
+
+      <section class="disclaimer" aria-label="AI assistance disclosure">
+        <strong>AI assistance disclosure.</strong>
+        The demo code and this article were prepared with assistance from AI tooling, including
+        OpenAI Codex. The implementation is intended as an educational example and should be
+        reviewed before adapting it to production systems.
+      </section>
+
+      <div class="page-shell">
+        <aside class="toc" aria-label="Table of contents">
+          <p>Contents</p>
+          <a href="#architecture">Architecture</a>
+          <a href="#contracts">Contracts</a>
+          <a href="#wsdl">WSDL</a>
+          <a href="#keys">Keys</a>
+          <a href="#signature">XML Signature</a>
+          <a href="#soap-client">SOAP client</a>
+          <a href="#endpoints">Endpoints</a>
+          <a href="#logging">Logging</a>
+          <a href="#logs">Demo logs</a>
+          <a href="#run-demo">Run demo</a>
+          <a href="#production">Production notes</a>
+        </aside>
+
+        <article id="article" class="article">
+          <section id="architecture" class="article-section reveal">
+            <p class="section-kicker">01 / Goal</p>
+            <h2>What this demo builds</h2>
+            <p>
+              The repository demonstrates service-to-service communication where the message itself
+              carries the proof of integrity and sender identity. The SOAP envelope is signed in the
+              <code>wsse:Security</code> header, so the receiver validates the XML payload instead of
+              trusting only the transport channel.
+            </p>
+            <p>
+              There are two Spring Boot applications. <code>client-service</code> exposes a REST API
+              only to make the demo easy to call from a browser, curl, or Postman. That REST API is
+              not part of the SOAP security model. Internally, the client sends signed SOAP requests
+              to <code>provider-service</code>. The provider returns signed SOAP responses and, after
+              a successful <code>GetContent</code>, calls a signed SOAP callback on the client.
+            </p>
+
+            <div class="call-lanes" role="img" aria-label="Who calls whom in the demo">
+              <div class="lane">
+                <div class="lane-party">User</div>
+                <div class="lane-protocol"><span>HTTP REST, demo-only facade</span></div>
+                <div class="lane-party target">client-service</div>
+              </div>
+              <div class="lane strong">
+                <div class="lane-party">client-service</div>
+                <div class="lane-protocol"><span>signed SOAP request and response</span></div>
+                <div class="lane-party target">provider-service</div>
+              </div>
+              <div class="lane callback">
+                <div class="lane-party">provider-service</div>
+                <div class="lane-protocol"><span>signed SOAP callback</span></div>
+                <div class="lane-party target">client-service</div>
+              </div>
+            </div>
+          </section>
+
+          <section id="contracts" class="article-section reveal">
+            <p class="section-kicker">02 / Contract first</p>
+            <h2>The shared model comes from XSD</h2>
+            <p>
+              The <code>soap-contracts</code> module contains XSD schemas for the provider API and
+              the callback API. Maven generates JAXB classes from those schemas, and both services
+              use the same model classes for endpoints and clients. The WSDL is generated by
+              Spring-WS from the XSD, so there is no manually maintained WSDL duplicate.
+            </p>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>soap-contracts/src/main/resources/xsd/content.xsd</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-xml">&lt;xs:element name="GetContentRequest"&gt;
+  &lt;xs:complexType&gt;
+    &lt;xs:sequence&gt;
+      &lt;xs:element name="contentId" type="xs:string"/&gt;
+      &lt;xs:element name="callbackUrl" type="xs:string" minOccurs="0"/&gt;
+    &lt;/xs:sequence&gt;
+  &lt;/xs:complexType&gt;
+&lt;/xs:element&gt;
+
+&lt;xs:element name="GetContentResponse"&gt;
+  &lt;xs:complexType&gt;
+    &lt;xs:sequence&gt;
+      &lt;xs:element name="contentId" type="xs:string"/&gt;
+      &lt;xs:element name="title" type="xs:string"/&gt;
+      &lt;xs:element name="body" type="xs:string"/&gt;
+      &lt;xs:element name="category" type="xs:string"/&gt;
+      &lt;xs:element name="servedAt" type="xs:string"/&gt;
+    &lt;/xs:sequence&gt;
+  &lt;/xs:complexType&gt;
+&lt;/xs:element&gt;</code></pre>
+            </div>
+          </section>
+
+          <section id="wsdl" class="article-section reveal">
+            <p class="section-kicker">03 / Spring-WS</p>
+            <h2>Publishing WSDL with <code>DefaultWsdl11Definition</code></h2>
+            <p>
+              Each SOAP application registers Spring-WS <code>MessageDispatcherServlet</code> under
+              <code>/ws/*</code>. The provider publishes <code>/ws/content.wsdl</code>. The client
+              publishes <code>/ws/callback.wsdl</code> for the provider callback.
+            </p>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>ProviderSoapConfiguration</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-java">@Bean
+ServletRegistrationBean&lt;MessageDispatcherServlet&gt; messageDispatcherServlet(
+        ApplicationContext applicationContext) {
+    MessageDispatcherServlet servlet = new MessageDispatcherServlet();
+    servlet.setApplicationContext(applicationContext);
+    servlet.setTransformWsdlLocations(true);
+    return new ServletRegistrationBean&lt;&gt;(servlet, "/ws/*");
+}
+
+@Bean(name = "content")
+DefaultWsdl11Definition contentWsdl(XsdSchema contentSchema) {
+    DefaultWsdl11Definition wsdl = new DefaultWsdl11Definition();
+    wsdl.setPortTypeName("ContentPort");
+    wsdl.setLocationUri("/ws");
+    wsdl.setTargetNamespace("urn:demo:provider:content:v1");
+    wsdl.setSchema(contentSchema);
+    return wsdl;
+}</code></pre>
+            </div>
+          </section>
+
+          <section id="keys" class="article-section reveal">
+            <p class="section-kicker">04 / Trust</p>
+            <h2>Each service owns a signing key and trusts the other certificate</h2>
+            <p>
+              The demo uses local <code>PKCS12</code> stores. The client signs requests with its
+              private key. The provider validates them with the client certificate in
+              <code>provider-truststore.p12</code>. The provider signs responses and callbacks with
+              its own private key. The client validates them through <code>client-truststore.p12</code>.
+            </p>
+
+            <div class="trust-grid" role="img" aria-label="Mutual key and truststore setup">
+              <div class="trust-service">
+                <h3>client-service</h3>
+                <p><strong>client-signing.p12</strong><span>client private key</span></p>
+                <p><strong>client-truststore.p12</strong><span>provider certificate</span></p>
+              </div>
+              <div class="trust-exchange">
+                <span>request signed by client</span>
+                <span>response and callback verified by client</span>
+              </div>
+              <div class="trust-service">
+                <h3>provider-service</h3>
+                <p><strong>provider-signing.p12</strong><span>provider private key</span></p>
+                <p><strong>provider-truststore.p12</strong><span>client certificate</span></p>
+              </div>
+            </div>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>scripts/generate-demo-keys.sh</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-bash">./scripts/generate-demo-keys.sh
+
+# Generated files:
+# provider-service/src/main/resources/security/provider-signing.p12
+# provider-service/src/main/resources/security/provider-truststore.p12
+# client-service/src/main/resources/security/client-signing.p12
+# client-service/src/main/resources/security/client-truststore.p12</code></pre>
+            </div>
+          </section>
+
+          <section id="signature" class="article-section reveal">
+            <p class="section-kicker">05 / WS-Security</p>
+            <h2>Signing and validation with <code>Wss4jSecurityInterceptor</code></h2>
+            <p>
+              The central Spring-WS integration point is <code>Wss4jSecurityInterceptor</code>. On
+              the server side it is registered as an endpoint interceptor. On the client side it is
+              attached to <code>WebServiceTemplate</code>. The demo requires both
+              <code>Timestamp</code> and <code>Signature</code> in every SOAP exchange.
+            </p>
+
+            <div class="soap-header-diagram" role="img" aria-label="Simplified SOAP Header with WS-Security signature">
+              <div class="xml-line root">&lt;SOAP-ENV:Header&gt;</div>
+              <div class="xml-line level-1">&lt;wsse:Security mustUnderstand="1"&gt;</div>
+              <div class="xml-line level-2">&lt;wsse:BinarySecurityToken /&gt;</div>
+              <div class="xml-line level-2">&lt;ds:Signature&gt;</div>
+              <div class="xml-line level-3">Reference: SOAP Body</div>
+              <div class="xml-line level-3">Reference: wsu:Timestamp</div>
+              <div class="xml-line level-2">&lt;/ds:Signature&gt;</div>
+              <div class="xml-line level-2">&lt;wsu:Timestamp /&gt;</div>
+              <div class="xml-line level-1">&lt;/wsse:Security&gt;</div>
+              <div class="xml-line root">&lt;/SOAP-ENV:Header&gt;</div>
+            </div>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>Wss4jSecurityInterceptor</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-java">static final String SOAP_BODY_AND_TIMESTAMP =
+    "{}{http://schemas.xmlsoap.org/soap/envelope/}Body;"
+  + "{}{http://docs.oasis-open.org/wss/2004/01/"
+  + "oasis-200401-wss-wssecurity-utility-1.0.xsd}Timestamp";
+
+@Bean
+Wss4jSecurityInterceptor clientSecurityInterceptor() throws Exception {
+    Wss4jSecurityInterceptor interceptor = new Wss4jSecurityInterceptor();
+    interceptor.setValidationActions("Timestamp Signature");
+    interceptor.setValidationSignatureCrypto(trustedProviderCrypto());
+    interceptor.setValidationTimeToLive(300);
+    interceptor.setTimestampStrict(true);
+
+    interceptor.setSecurementActions("Timestamp Signature");
+    interceptor.setSecurementUsername("client");
+    interceptor.setSecurementPassword("changeit");
+    interceptor.setSecurementSignatureCrypto(clientSigningCrypto());
+    interceptor.setSecurementSignatureKeyIdentifier("DirectReference");
+    interceptor.setSecurementSignatureParts(SOAP_BODY_AND_TIMESTAMP);
+    interceptor.setSecurementTimeToLive(300);
+    interceptor.setSecurementMustUnderstand(true);
+    return interceptor;
+}</code></pre>
+            </div>
+          </section>
+
+          <section id="soap-client" class="article-section reveal">
+            <p class="section-kicker">06 / SOAP client</p>
+            <h2><code>WebServiceTemplateBuilder</code> wires marshalling, security, and logging</h2>
+            <p>
+              The client does not instantiate <code>WebServiceTemplate</code> directly. It uses
+              Spring Boot's <code>WebServiceTemplateBuilder</code>, sets JAXB marshalling, points to
+              the provider URI, attaches the WSS4J interceptor, and uses an HTTP sender that is also
+              intercepted by Logbook.
+            </p>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>ClientSoapConfiguration</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-java">@Bean
+WebServiceTemplate providerWebServiceTemplate(
+        WebServiceTemplateBuilder builder,
+        Jaxb2Marshaller marshaller,
+        Wss4jSecurityInterceptor securityInterceptor,
+        ClientHttpRequestMessageSender logbookSoapMessageSender,
+        @Value("${provider.soap.uri}") String providerSoapUri) {
+    return builder
+            .setMarshaller(marshaller)
+            .setUnmarshaller(marshaller)
+            .setDefaultUri(providerSoapUri)
+            .messageSenders(logbookSoapMessageSender)
+            .interceptors(new ClientInterceptor[] { securityInterceptor })
+            .build();
+}</code></pre>
+            </div>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>ProviderContentClient</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-java">public GetContentResponse getContent(String contentId, String callbackUrl) {
+    GetContentRequest request = new GetContentRequest();
+    request.setContentId(contentId);
+    request.setCallbackUrl(callbackUrl);
+    return (GetContentResponse) providerWebServiceTemplate
+            .marshalSendAndReceive(request);
+}</code></pre>
+            </div>
+          </section>
+
+          <section id="endpoints" class="article-section reveal">
+            <p class="section-kicker">07 / Endpoints</p>
+            <h2>REST facade, SOAP provider, and signed callback</h2>
+            <p>
+              The REST controller exists for testing and demonstration only. It gives a simple way to
+              trigger the SOAP flow without a SOAP UI client. The actual service-to-service contract
+              is the Spring-WS SOAP contract, not the REST API.
+            </p>
+
+            <div class="sequence" role="img" aria-label="Request sequence for GET content and callback">
+              <div><span>1</span><p>REST <strong>GET /api/content/{id}</strong> reaches client-service.</p></div>
+              <div><span>2</span><p>The client creates <strong>GetContentRequest</strong> with a callback URL.</p></div>
+              <div><span>3</span><p>WSS4J signs the SOAP Body and Timestamp with the client key.</p></div>
+              <div><span>4</span><p>The provider validates the signature, reads content, and signs the response.</p></div>
+              <div><span>5</span><p>The provider sends signed <strong>NotifyContentDelivered</strong> back to the client.</p></div>
+              <div><span>6</span><p>The client stores the callback event and returns JSON to the test caller.</p></div>
+            </div>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>ContentEndpoint</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-java">@Endpoint
+public class ContentEndpoint {
+    private static final String NAMESPACE = "urn:demo:provider:content:v1";
+
+    @PayloadRoot(namespace = NAMESPACE, localPart = "GetContentRequest")
+    @ResponsePayload
+    public GetContentResponse getContent(@RequestPayload GetContentRequest request) {
+        OffsetDateTime servedAt = OffsetDateTime.now();
+        ContentItem item = contentCatalog.getById(request.getContentId());
+        callbackClient.notifyDelivered(request.getCallbackUrl(), item, servedAt);
+
+        GetContentResponse response = new GetContentResponse();
+        response.setContentId(item.contentId());
+        response.setTitle(item.title());
+        response.setBody(item.body());
+        response.setCategory(item.category());
+        response.setServedAt(servedAt.toString());
+        return response;
+    }
+}</code></pre>
+            </div>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>ContentRestController</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-java">@RestController
+@RequestMapping("/api")
+public class ContentRestController {
+
+    @GetMapping("/content/{id}")
+    public ContentResponse getContent(@PathVariable String id) {
+        GetContentResponse response = providerContentClient
+                .getContent(id, callbackUrl());
+        return new ContentResponse(
+                response.getContentId(),
+                response.getTitle(),
+                response.getBody(),
+                response.getCategory(),
+                response.getServedAt());
+    }
+}</code></pre>
+            </div>
+          </section>
+
+          <section id="logging" class="article-section reveal">
+            <p class="section-kicker">08 / Observability</p>
+            <h2>REST and SOAP are logged through one mechanism</h2>
+            <p>
+              The demo uses Zalando Logbook for request and response logging. Incoming REST and SOAP
+              traffic is visible through the servlet filter. Outgoing SOAP traffic is visible because
+              <code>ClientHttpRequestMessageSender</code> uses
+              <code>LogbookClientHttpRequestInterceptor</code>.
+            </p>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>application.properties</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-properties">logging.level.org.zalando.logbook.Logbook=TRACE
+logbook.format.style=http
+logbook.strategy=default
+logbook.write.max-body-size=-1
+logbook.filters.body.default-enabled=false</code></pre>
+            </div>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>SOAP client sender with Logbook</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-java">@Bean
+ClientHttpRequestMessageSender logbookSoapMessageSender(
+        LogbookClientHttpRequestInterceptor logbookInterceptor) {
+    InterceptingClientHttpRequestFactory requestFactory =
+            new InterceptingClientHttpRequestFactory(
+                    new SimpleClientHttpRequestFactory(),
+                    List.of(logbookInterceptor));
+    return new ClientHttpRequestMessageSender(requestFactory);
+}</code></pre>
+            </div>
+
+            <p>
+              JSON pretty printing is handled by Logbook. XML pretty printing is done by a small
+              <code>BodyFilter</code> based on the JDK DOM parser and <code>Transformer</code>. This
+              keeps Logbook as the single HTTP request/response logging layer. Spring-WS
+              <code>MessageTracing</code> is intentionally not enabled.
+            </p>
+          </section>
+
+          <section id="logs" class="article-section reveal">
+            <p class="section-kicker">09 / Runtime evidence</p>
+            <h2>Full demo logs from client and provider</h2>
+            <p>
+              The page loads the full application logs from static files bundled with the article.
+              They show the REST request, outgoing signed SOAP request, incoming signed SOAP
+              response, provider-side request validation, and the signed callback exchange.
+            </p>
+
+            <div class="log-grid">
+              <div class="code-card log-card">
+                <div class="code-title">
+                  <span>logs/client.log</span>
+                  <button type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-log" data-log-src="logs/client.log">Loading client log...</code></pre>
+              </div>
+
+              <div class="code-card log-card">
+                <div class="code-title">
+                  <span>logs/provider.log</span>
+                  <button type="button" data-copy-code>Copy</button>
+                </div>
+                <pre><code class="language-log" data-log-src="logs/provider.log">Loading provider log...</code></pre>
+              </div>
+            </div>
+          </section>
+
+          <section id="run-demo" class="article-section reveal">
+            <p class="section-kicker">10 / Run it</p>
+            <h2>How to run the demo locally</h2>
+            <p>
+              The repository contains Maven Wrapper, so a local Maven installation is not required.
+              The <code>.p12</code> files are not committed. Generate them locally before running the
+              services.
+            </p>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>Terminal</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-bash">git clone https://github.com/emlagowski/web-service-spring.git
+cd web-service-spring
+
+./scripts/generate-demo-keys.sh
+./mvnw verify
+
+./mvnw -pl provider-service spring-boot:run
+./mvnw -pl client-service spring-boot:run</code></pre>
+            </div>
+
+            <div class="code-card">
+              <div class="code-title">
+                <span>Demo REST calls</span>
+                <button type="button" data-copy-code>Copy</button>
+              </div>
+              <pre><code class="language-bash">curl http://localhost:8081/api/content/article-1
+curl "http://localhost:8081/api/content?category=spring"
+curl http://localhost:8081/api/callback-events</code></pre>
+            </div>
+
+            <div class="endpoint-list">
+              <a href="http://localhost:8080/ws/content.wsdl">Provider WSDL: /ws/content.wsdl</a>
+              <a href="http://localhost:8081/ws/callback.wsdl">Callback WSDL: /ws/callback.wsdl</a>
+            </div>
+          </section>
+
+          <section id="production" class="article-section reveal">
+            <p class="section-kicker">11 / Production notes</p>
+            <h2>What changes outside a demo</h2>
+            <p>
+              This project keeps configuration close to the code to make the Spring-WS mechanics
+              visible. In production, signing keys should come from a controlled key management
+              process, passwords should not live in source control, certificate rotation should be
+              planned, and signature algorithms must match current security policy.
+            </p>
+            <p>
+              The implementation pattern stays the same: contract-first XSD, generated JAXB model,
+              Spring-WS endpoints, <code>Wss4jSecurityInterceptor</code> on both sides, and an
+              explicit truststore defining whose signatures each service accepts.
+            </p>
+
+            <div class="final-links" aria-label="Final links">
+              <a href="https://github.com/emlagowski/web-service-spring">Source repository</a>
+              <a href="https://www.mlagowski.com">Author website</a>
+              <a href="https://webservice.mlagowski.com">Article home</a>
+            </div>
+          </section>
+        </article>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <p>
+        Article for
+        <a href="https://github.com/emlagowski/web-service-spring">emlagowski/web-service-spring</a>.
+        Author: <a href="https://www.mlagowski.com">mlagowski.com</a>.
+      </p>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
